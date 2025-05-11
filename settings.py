@@ -12,6 +12,7 @@ FPS = 60 # Frames per second
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 SKY_BLUE = (135, 206, 235)
+GREEN = (0, 200, 0)
 
 
 #Asset paths

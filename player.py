@@ -179,6 +179,7 @@ class Player(pygame.sprite.Sprite):
 
         # Boundary corrections: Adjust self.position then re-align rect to self.position
         corrected = False
+        
         if self.rect.left < 0:
             self.position.x -= self.rect.left # self.rect.left is negative, so this adds to position.x
             corrected = True
@@ -189,14 +190,15 @@ class Player(pygame.sprite.Sprite):
             self.position.y -= self.rect.top
             corrected = True
         if self.rect.bottom > SCREEN_HEIGHT:
-            self.position.y -= (self.rect.bottom - SCREEN_HEIGHT)
+            self.position.y -= (self.rect.bottom - SCREEN_HEIGHT) # Correct position
             self.is_on_ground = True
+            self.velocity.y = 0 # Explicitly stop downward velocity upon "landing"
             corrected = True
         else:
             self.is_on_ground = False
 
         if corrected: # Re-align rect to the corrected self.position
-            self.rect.topleft = (round(self.position.x), round(self.position.y))
+            self.rect.topleft = (round(self.position.x), round(self.position.y))    
 
 
     def update_animation(self):

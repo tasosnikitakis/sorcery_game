@@ -5,11 +5,13 @@ import os # os is used by settings.py, but good to have here if any direct path 
 
 # Import all constants and settings
 from settings import (SCREEN_WIDTH, SCREEN_HEIGHT, FPS, SKY_BLUE, BLACK, WHITE,
-                      SPRITESHEET_FILENAME, PLAYER_ANIMATION_TICKS_PER_FRAME)
+                      SPRITESHEET_FILENAME, PLAYER_ANIMATION_TICKS_PER_FRAME, GREEN)
+
 
 # Import the classes from their respective files
 from spritesheet import Spritesheet
 from player import Player
+from platform import Platform
 
 # --- Pygame Initialization ---
 try:
@@ -53,6 +55,10 @@ except Exception as e: # Catch any other unexpected errors
     pygame.quit()
     exit()
 
+# Create Sprite Groups
+all_sprites = pygame.sprite.Group() # Group for ALL sprites (for updating and drawing)
+platforms = pygame.sprite.Group()   # Group specifically for platforms (for collision)    
+
 
 # Create Player Instance
 player_start_pos = (SCREEN_WIDTH // 3, SCREEN_HEIGHT // 2)
@@ -84,6 +90,25 @@ except Exception as e:
     print(f"Error creating Player instance or sprite group: {e}")
     pygame.quit()
     exit()
+
+
+# --- Create Platforms ---
+# Define some platforms (x, y, width, height)
+# Ground platform
+platform1 = Platform(0, SCREEN_HEIGHT - 40, SCREEN_WIDTH, 40) # Using default BLACK color
+# Floating platform
+platform2 = Platform(SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 150, 200, 20)
+# Another floating platform
+platform3 = Platform(100, SCREEN_HEIGHT - 250, 150, 20, (100, 100, 100)) # Grey color
+
+# Add platforms to the sprite groups
+platforms.add(platform1)
+platforms.add(platform2)
+platforms.add(platform3)
+
+all_sprites.add(platform1) # Add to all_sprites for drawing
+all_sprites.add(platform2)
+all_sprites.add(platform3)
 
 # --- Game Loop ---
 running = True
