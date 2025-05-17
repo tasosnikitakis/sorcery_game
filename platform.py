@@ -30,6 +30,10 @@ class Platform(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+        # --- Add this line to create a mask for the platform ---
+        self.mask = pygame.mask.from_surface(self.image)
+        # --- End of new line ---
+
     # Platforms are static, so their update() method doesn't need to do anything
     # unless you want moving platforms later.
     # def update(self, *args):

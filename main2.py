@@ -70,13 +70,9 @@ platforms = pygame.sprite.Group()
 # --- Create Player Instance ---
 wizard = None
 try:
-    # --- MODIFIED START POSITION: Start player in the air at a specific tile coordinate ---
-    player_start_tile_col = 5  # Start at the 6th tile column (0-indexed)
-    player_start_tile_row = 5  # Start at the 6th tile row (0-indexed)
-
-    player_start_pos_x = player_start_tile_col * settings.TILE_WIDTH
-    player_start_pos_y = player_start_tile_row * settings.TILE_HEIGHT
-    # --- END OF MODIFIED START POSITION ---
+    # Player start position in scaled pixels
+    player_start_pos_x = settings.GAME_AREA_WIDTH // 3
+    player_start_pos_y = settings.GAME_AREA_HEIGHT - (settings.TILE_HEIGHT * 3) # Example: Start 2 tiles above ground
     
     wizard = Player(my_spritesheet, wizard_animations_data,
                     initial_animation="idle_front",
@@ -100,19 +96,24 @@ except Exception as e:
 
 
 # --- Create Platforms (Tile-Based Approach) ---
+# Define platforms in terms of tile coordinates (col, row) and tile spans (width_tiles, height_tiles)
+# Origin (0,0) for tiles is top-left of the game area.
+# Game area is settings.BASE_GAME_AREA_WIDTH // settings.BASE_TILE_WIDTH tiles wide (40 tiles)
+# and settings.BASE_GAME_AREA_HEIGHT // settings.BASE_TILE_HEIGHT tiles high (18 tiles).
+
 platform_definitions = [
     # (tile_col_start, tile_row_start, num_tiles_wide, num_tiles_high, color)
-    # Ground platform - spans the entire width at the bottom-most tile row
-    (0, (settings.BASE_GAME_AREA_HEIGHT // settings.BASE_TILE_HEIGHT) - 1, settings.BASE_GAME_AREA_WIDTH // settings.BASE_TILE_WIDTH, 1, settings.GREEN), 
-    # Example floating platforms (adjust tile_row_start to be above the ground)
-    (15, (settings.BASE_GAME_AREA_HEIGHT // settings.BASE_TILE_HEIGHT) - 4, 8, 1, settings.WHITE), # 3 tiles above ground from bottom
-    (4, (settings.BASE_GAME_AREA_HEIGHT // settings.BASE_TILE_HEIGHT) - 7, 6, 1, (100, 100, 100)), # 6 tiles above ground from bottom
+    (0, (settings.BASE_GAME_AREA_HEIGHT // settings.BASE_TILE_HEIGHT) - 1, settings.BASE_GAME_AREA_WIDTH // settings.BASE_TILE_WIDTH, 1, settings.GREEN), # Ground
+    (15, (settings.BASE_GAME_AREA_HEIGHT // settings.BASE_TILE_HEIGHT) - 4, 8, 1, settings.WHITE), # Floating platform 1
+    (4, (settings.BASE_GAME_AREA_HEIGHT // settings.BASE_TILE_HEIGHT) - 7, 6, 1, (100, 100, 100)), # Floating platform 2
+    # Add more platforms here using tile coordinates
 ]
 
-if wizard: 
+if wizard: # Only create platforms if player exists
     for p_def in platform_definitions:
         tile_x, tile_y, tiles_w, tiles_h, color = p_def
         
+        # Convert tile coordinates and dimensions to scaled pixel values
         pixel_x = tile_x * settings.TILE_WIDTH
         pixel_y = tile_y * settings.TILE_HEIGHT
         pixel_width = tiles_w * settings.TILE_WIDTH
@@ -124,12 +125,11 @@ if wizard:
 else:
     print("Skipping platform creation as player failed to initialize.")
 
-# Player should now start in a clear space, so nudging is not needed.
 
 # --- Game State Variables for Info Panel ---
-current_location = "in the woods" 
-carrying_item = "nothing"    
-energy_level = 99            
+current_location = "in the woods" # Example
+carrying_item = "nothing"    # Example
+energy_level = 99            # Example
 
 def draw_info_panel(surface):
     # Draw background for info panel
@@ -150,16 +150,18 @@ def draw_info_panel(surface):
             text_surface = info_font.render(text_content, True, settings.INFO_PANEL_TEXT_COLOR)
             surface.blit(text_surface, (settings.TEXT_MARGIN_X, current_y))
             current_y += text_surface.get_height() + settings.LINE_SPACING
-        else: # Fallback if font failed to load
-            pygame.draw.rect(surface, (255,0,0), (settings.TEXT_MARGIN_X, current_y, 200, 20)) # Draw red box as error
+        else: 
+            pygame.draw.rect(surface, (255,0,0), (settings.TEXT_MARGIN_X, current_y, 200, 20)) # Fallback
             current_y += 20 + settings.LINE_SPACING
 
 
 # --- Game Loop ---
 running = True
+# frame_count = 0 # Not strictly needed unless for specific debug/timing
 
 while running:
     dt = clock.tick(settings.FPS) / 1000.0
+    # frame_count += 1
 
     # Event Handling
     for event in pygame.event.get():
@@ -168,6 +170,7 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
+            # Add other key events here if needed (e.g., for animation speed testing)
     
     # Update Game State
     if wizard is not None:
@@ -176,6 +179,7 @@ while running:
         all_sprites.update(dt, platforms)
     else:
         print("Error: wizard object is None, cannot update.")
+        # running = False # Optionally stop the game if critical
 
     # Draw / Render
     # 1. Fill the entire screen (this will be the background for the game area too)
